@@ -7,5 +7,6 @@ export interface CreateSongDto {
     duration: string;
     admin: string;
     secureUrl: string;
+    thumbnail: string;
   }
   

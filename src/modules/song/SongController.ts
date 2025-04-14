@@ -43,7 +43,7 @@ class SongController {
 
       const result = await uploadToCloudinary(request.file.buffer);
 
-      const { title, album, genre, lyric, releaseDate, admin } = request.body;
+      const { title, album, genre, lyric, releaseDate, admin, thumbnail } = request.body;
 
       // Tạo bài hát
       const newSong = await SongService.createSongdata({
@@ -55,6 +55,7 @@ class SongController {
         admin,
         duration: formattedDuration,
         secureUrl: result.secure_url,
+        thumbnail
       });
 
       return response.status(HttpStatusCode.CREATED).json({
