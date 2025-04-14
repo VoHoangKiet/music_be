@@ -4,14 +4,17 @@ import ErrorCode from '@/common/constants/errorCode';
 import UnauthorizedExeption from '@/common/exception/UnauthorizedExeption';
 import Jwt from '@/utils/Jwt';
 import hashing from '@/utils/hashing';
+import Song, { ISong } from '@/databases/entities/Song';
+import { CreateSongDto } from './type';
+import mongoose from 'mongoose';
 
-class AuthService {
+class SongService {
   async findUserById(_id: string) {
     return await User.findOne({ _id });
   }
 
   async findUserByEmail(email: string) {
-    return await User.findOne({ email }).populate('favoriteSongs');
+    return await User.findOne({ email });
   }
 
   async login(email: string, password: string) {
@@ -36,8 +39,7 @@ class AuthService {
       user.id,
       user.adminId ? 'ADMIN' : 'USER'
     );
-    const { password: oldPass, ...userWithoutPassword } = user.toObject();
-    return { accessToken, user: userWithoutPassword };
+    return { accessToken };
   }
 
   async register(
@@ -62,17 +64,42 @@ class AuthService {
     });
     return await newUser.save();
   }
-  async getMyInfo(uid: string) {
-    const user = await User.findById(uid).populate('favoriteSongs');
+
+  async createSongdata(data: CreateSongDto): Promise<ISong> {
+    const song = new Song(data);
+    return await song.save();
+  }
+  async getAllSongs() {
+    const songs = await Song.find().populate("genre").sort({ createdAt: -1 })
+    return songs;
+  }
+  async toggleFavoriteSong(userId: string, songId: string) {
+
+    const user = await User.findById(userId);
     if (!user) {
-      throw new BadRequestException({
-        errorCode: ErrorCode.NOT_FOUND,
-        errorMessage: 'User not found',
-      });
+      throw new Error('User not found');
     }
-    
-    return user;
+
+    const song = await Song.findById(songId);
+    if (!song) {
+      throw new Error('Song not found');
+    }
+
+    const isFavorite = user.favoriteSongs?.some(
+      (favoriteSongId) => favoriteSongId.toString() === songId
+    );
+
+    if (isFavorite) {
+      user.favoriteSongs = user.favoriteSongs?.filter(
+      (favoriteSongId) => favoriteSongId.toString() !== songId
+      ); // unfavorite
+    } else {
+      user.favoriteSongs?.push(new mongoose.Types.ObjectId(songId));
+    }
+
+    await user.save();
+    return user.favoriteSongs;
   }
 }
 
-export default new AuthService();
+export default new SongService();

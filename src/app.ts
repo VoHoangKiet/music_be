@@ -6,6 +6,8 @@ import cors from 'cors';
 import express, { Application, NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { connectDatabase } from './databases';
+import Genre from './databases/entities/Genre';
+import MusicalArtist from './databases/entities/Artist';
 
 export class App {
   public app: Application;

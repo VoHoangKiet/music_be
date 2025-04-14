@@ -8,6 +8,7 @@ export interface IUser extends Document {
   phone?: string;
   registerDate: Date;
   adminId?: mongoose.Types.ObjectId;
+  favoriteSongs?: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -20,6 +21,7 @@ const userSchema: Schema<IUser> = new Schema(
     phone: { type: String },
     registerDate: { type: Date, default: Date.now, required: true },
     adminId: { type: mongoose.Types.ObjectId, ref: 'Admin' },
+    favoriteSongs: [{ type: mongoose.Types.ObjectId, ref: 'Song' }],
   },
   {
     timestamps: true, // Tự động thêm createdAt và updatedAt

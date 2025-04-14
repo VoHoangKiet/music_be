@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import envConfig from "../common/config/config";
 import BadRequestException from "@/common/exception/BadRequestException";
 import ErrorCode from "@/common/constants/errorCode";
-import { UserInfo } from "@/common/interfaces/express";
+import { UserInfo } from "./expressCustom";
 
 class JwtHandler {
   generateAccessToken(uid: string, role: string) {
@@ -12,7 +12,7 @@ class JwtHandler {
         role
       },
       envConfig.JWTKey,
-      { expiresIn: '1h' }
+      { expiresIn: '365d' }
     );
 
     return accessToken;
@@ -21,25 +21,6 @@ class JwtHandler {
   verifyAccessToken(accessToken: string) {
     const payload = jwt.verify(accessToken, envConfig.JWTKey);
     return payload as UserInfo
-  }
-
-  generateRefreshToken(uid: string) {
-    const refreshToken = jwt.sign(
-      {
-        uid
-      },
-      envConfig.JWTRefreshKey,
-      { expiresIn: '365d' }
-    );
-
-    return refreshToken;
-  }
-
-
-
-  verifyRefreshToken(refreshToken: string) {
-    const payload = jwt.verify(refreshToken, envConfig.JWTRefreshKey);
-    return (payload as { uid: string }).uid;
   }
 
   generateVerifyEmailToken(email: string) {

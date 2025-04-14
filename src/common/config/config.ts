@@ -29,10 +29,6 @@ class ConfigService {
   get JWTKey(): string {
     return this.getEnv('JWT_KEY');
   }
-  get JWTRefreshKey(): string {
-    return this.getEnv('JWT_REFRESH_KEY');
-  }
-
   get mongoUrl(): string {
     return this.getEnv('MONGO_URL');
   }
