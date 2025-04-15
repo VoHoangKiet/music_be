@@ -3,7 +3,6 @@ import mongoose, { Document, Schema } from 'mongoose';
 // Định nghĩa interface cho Song
 export interface ISong extends Document {
   title: string;
-  album: mongoose.Types.ObjectId;
   genre: mongoose.Types.ObjectId;
   lyric: string;
   playCount: number;
@@ -19,7 +18,6 @@ export interface ISong extends Document {
 const songSchema: Schema<ISong> = new Schema(
   {
     title: { type: String, required: true },
-    album: { type: mongoose.Schema.Types.ObjectId, ref: 'Album', required: true },
     genre: { type: mongoose.Schema.Types.ObjectId, ref: 'Genre', required: true },
     lyric: { type: String, required: true },
     playCount: { type: Number, default: 0 },
