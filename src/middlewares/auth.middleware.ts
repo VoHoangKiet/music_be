@@ -1,7 +1,6 @@
 import { NextFunction } from "express";
 import Jwt from "../utils/Jwt";
 import ErrorCode from "@/common/constants/errorCode";
-import ForbiddenException from "@/common/exception/ForbiddenException";
 import UnauthorizedExeption from "@/common/exception/UnauthorizedExeption";
 import { RequestCustom, ResponseCustom } from "@/utils/expressCustom";
 export const authMiddleware = async (
@@ -25,6 +24,7 @@ export const authMiddleware = async (
   }
   try {
     const payload = Jwt.verifyAccessToken(accessToken);
+    
     req.userInfo = payload;
     return next();
   } catch (error: any) {

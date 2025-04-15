@@ -13,7 +13,7 @@ const genreSchema: Schema<IGenre> = new Schema(
     description: { type: String, required: true },
   },
   {
-    timestamps: true, // Tự động thêm createdAt và updatedAt
+    timestamps: true, // Automatically add createdAt and updatedAt
   }
 );
 

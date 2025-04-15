@@ -16,8 +16,7 @@ export type ResponseCustom = Response<BodyResponse>;
 export interface UserInfo {
   email: string;
   uid: string;
-  adminId?: string;
-  state: string;
+  role: string;
 }
 
 export type RequestCustom = Request & { userInfo: UserInfo, data: any };
