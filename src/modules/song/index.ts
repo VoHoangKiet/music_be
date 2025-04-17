@@ -7,6 +7,8 @@ const SongRouter = Router();
 SongRouter.post('/upload-audio', upload.single('audio'), SongController.uploadMusic);
 
 SongRouter.get('/', SongController.getAllSongs);
+SongRouter.get('/spotify', SongController.searchTrack);
+SongRouter.get('/import',authMiddleware, SongController.importSpotifyTracks);
 
 SongRouter.post('/favorite/:songId', authMiddleware, SongController.toggleFavoriteSong);
 

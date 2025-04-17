@@ -7,6 +7,8 @@ import { HttpStatusCode } from '@/common/constants';
 import { uploadToCloudinary } from '@/utils/upload';
 import { parseBuffer } from 'music-metadata';
 import Genre from '@/databases/entities/Genre';
+import { searchTracks } from '@/utils/searchTrack';
+import mongoose from 'mongoose';
 
 class SongController {
   async uploadMusic(
@@ -43,7 +45,8 @@ class SongController {
 
       const result = await uploadToCloudinary(request.file.buffer);
 
-      const { title, genre, lyric, releaseDate, admin, thumbnail } = request.body;
+      const { title, genre, lyric, releaseDate, admin, thumbnail } =
+        request.body;
 
       // Tạo bài hát
       const newSong = await SongService.createSongdata({
@@ -54,7 +57,7 @@ class SongController {
         admin,
         duration: formattedDuration,
         secureUrl: result.secure_url,
-        thumbnail
+        thumbnail,
       });
 
       return response.status(HttpStatusCode.CREATED).json({
@@ -89,7 +92,7 @@ class SongController {
     if (!errors.isEmpty()) throw new BadRequestException(errors.array());
     const { uid } = request.userInfo;
     const { songId } = request.params;
-    
+
     try {
       const favorites = await SongService.toggleFavoriteSong(uid, songId);
       return response.status(HttpStatusCode.OK).json({
@@ -102,6 +105,27 @@ class SongController {
         data: { message: error.message },
       });
     }
+  }
+  async searchTrack(request: RequestCustom, response: ResponseCustom) {
+    const { query } = request.query;
+    const tracks = await searchTracks(query as string);
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: tracks,
+    });
+  }
+  async importSpotifyTracks(request: RequestCustom, response: ResponseCustom) {
+    const { query } = request.query;
+    const tracks = await searchTracks(query as string);
+
+    const importTracks = await SongService.importSpotifyTracks(
+      tracks,
+      new mongoose.Types.ObjectId(request.userInfo.uid)
+    );
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: importTracks,
+    });
   }
 }
 
