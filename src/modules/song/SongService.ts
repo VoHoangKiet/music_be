@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import Album from '@/databases/entities/Album';
 import MusicalArtist from '@/databases/entities/Artist';
 import GenreService from '../genre/GenreService';
+import { getSpotifyToken } from '@/utils/getSpotifyToken';
+import axios from 'axios';
 
 interface SpotifyTrack {
   name: string;
@@ -26,9 +28,21 @@ interface SpotifyTrack {
 }
 
 class SongService {
-  async createSongdata(data: CreateSongDto): Promise<ISong> {
-    const song = new Song(data);
-    return await song.save();
+
+  async updateSong(songId: string, data: CreateSongDto): Promise<ISong> {
+    
+    const song = await Song.findByIdAndUpdate(songId, data, { new: true });
+    if (!song) {
+      throw new Error('Song not found');
+    }
+    return song;
+  }
+  async deleteSong(songId: string) {
+    const song = await Song.findByIdAndDelete(songId);
+    if (!song) {
+      throw new Error('Song not found');
+    }
+    return song;
   }
   async getAllSongs() {
     const songs = await Song.find().populate('genre').sort({ createdAt: -1 });
@@ -73,9 +87,18 @@ class SongService {
 
       let artistDoc = await MusicalArtist.findOne({ name: mainArtist.name });
       if (!artistDoc) {
+        const token = await getSpotifyToken();
+        const response = await axios.get(
+          `https://api.spotify.com/v1/artists/${mainArtist.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         artistDoc = await MusicalArtist.create({
           name: mainArtist.name,
-          avatar: track.album.images?.[0]?.url || '',
+          avatar: response.data.images[0].url,
           genre,
           bio: `Spotify artist: ${mainArtist.external_urls.spotify}`,
         });

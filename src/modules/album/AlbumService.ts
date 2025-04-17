@@ -21,7 +21,7 @@ class AlbumService {
       artist: albumDTO.artist,
       releaseDate: albumDTO.releaseDate,
       coverAt: albumDTO.coverAt,
-      songs: albumDTO.songs || []
+      songs: albumDTO.songs || [],
     });
     return await newAlbum.save();
   }
@@ -41,12 +41,11 @@ class AlbumService {
     return album;
   }
 
-  async updateAlbum(
-    id: string,
-    albumDTO: IAlbumDTO
-  ): Promise<IAlbum> {
+  async updateAlbum(id: string, albumDTO: IAlbumDTO): Promise<IAlbum> {
     const album = await this.getAlbumById(id);
-    const artistUpdate = await ArtistService.getArtistById(albumDTO.artist.toString());
+    const artistUpdate = await ArtistService.getArtistById(
+      albumDTO.artist.toString()
+    );
     if (!artistUpdate) {
       throw new BadRequestException({
         errorCode: ErrorCode.NOT_FOUND,
@@ -81,6 +80,11 @@ class AlbumService {
     album.songs = songIds as unknown as ObjectId[];
     return await album.save();
   }
+  async searchAlbumByArtist(artistId: string): Promise<IAlbum[]> {
+    return await Album.find({ artist: artistId })
+      .populate('artist')
+      .populate('songs');
+  }
 }
 
-export default new AlbumService(); 
+export default new AlbumService();

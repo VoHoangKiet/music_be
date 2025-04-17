@@ -11,61 +11,25 @@ import { searchTracks } from '@/utils/searchTrack';
 import mongoose from 'mongoose';
 
 class SongController {
-  async uploadMusic(
-    request: RequestCustom,
-    response: ResponseCustom,
-    next: NextFunction
-  ) {
-    try {
-      const errors = validationResult(request);
-      if (!errors.isEmpty()) throw new BadRequestException(errors.array());
-      if (!request.file) {
-        return response.status(HttpStatusCode.BAD_REQUEST).json({
-          httpStatusCode: HttpStatusCode.BAD_REQUEST,
-          data: 'No file uploaded',
-        });
-      }
-
-      const metadata = await parseBuffer(
-        new Uint8Array(request.file.buffer),
-        request.file.mimetype
-      );
-      const durationSec = metadata.format.duration || 0;
-
-      const formatDuration = (seconds: number): string => {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
-        return `${m}:${s < 10 ? '0' : ''}${s}`;
-      };
-      const formattedDuration = formatDuration(durationSec);
-
-      const result = await uploadToCloudinary(request.file.buffer);
-
-      const { title, genre, lyric, releaseDate, admin, thumbnail } =
-        request.body;
-
-      // Tạo bài hát
-      const newSong = await SongService.createSongdata({
-        title,
-        genre,
-        lyric,
-        releaseDate,
-        admin,
-        duration: formattedDuration,
-        secureUrl: result.secure_url,
-        thumbnail,
-      });
-
-      return response.status(HttpStatusCode.CREATED).json({
-        httpStatusCode: HttpStatusCode.CREATED,
-        data: {
-          song: newSong,
-        },
-      });
-    } catch (error) {
-      next(error);
-    }
+  async updateSong(request: RequestCustom, response: ResponseCustom) {
+    const { songId } = request.params;
+    const data = request.body;
+    
+    const song = await SongService.updateSong(songId, data);
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: song,
+    });
   }
+  async deleteSong(request: RequestCustom, response: ResponseCustom) {
+    const { songId } = request.params;
+    const song = await SongService.deleteSong(songId);
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: song,
+    });
+  }
+  
   async getAllSongs(
     request: RequestCustom,
     response: ResponseCustom,

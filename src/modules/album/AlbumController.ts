@@ -70,7 +70,7 @@ class AlbumController {
   async addSongToAlbum(req: RequestCustom, res: ResponseCustom) {
     const { albumId } = req.params;
     const { songIds } = req.body;
-    
+
     if (!Array.isArray(songIds)) {
       throw new BadRequestException({
         errorCode: ErrorCode.FAILED_VALIDATE_BODY,
@@ -83,6 +83,13 @@ class AlbumController {
       .status(HttpStatusCode.Ok)
       .json({ httpStatusCode: HttpStatusCode.Ok, data: updatedAlbum });
   }
+  async searchAlbumByArtist(req: RequestCustom, res: ResponseCustom) {
+    const { artistId } = req.params;
+    const albums = await AlbumService.searchAlbumByArtist(artistId);
+    res
+      .status(HttpStatusCode.Ok)
+      .json({ httpStatusCode: HttpStatusCode.Ok, data: albums });
+  }
 }
 
-export default new AlbumController(); 
+export default new AlbumController();

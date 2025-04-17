@@ -92,7 +92,7 @@ class GenreService {
         },
       }
     );
-    console.log(response.data);
+
     const genres: string[] = response.data.genres;
 
     if (!genres || genres.length === 0) {
@@ -117,7 +117,6 @@ class GenreService {
 
     const savedGenres = await Promise.all(genrePromises);
     const genre = savedGenres[0];
-
     return genre;
   }
 }

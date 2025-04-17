@@ -1,15 +1,14 @@
 import { Router } from 'express';
 import SongController from './SongController';
-import upload from '@/middlewares/multerConfig';
 import { authMiddleware } from '@/middlewares/auth.middleware';
+import { adminMiddleware } from '@/middlewares/admin.middleware';
 
 const SongRouter = Router();
-SongRouter.post('/upload-audio', upload.single('audio'), SongController.uploadMusic);
-
 SongRouter.get('/', SongController.getAllSongs);
 SongRouter.get('/spotify', SongController.searchTrack);
 SongRouter.get('/import',authMiddleware, SongController.importSpotifyTracks);
 
 SongRouter.post('/favorite/:songId', authMiddleware, SongController.toggleFavoriteSong);
-
+SongRouter.put('/:songId', authMiddleware,adminMiddleware, SongController.updateSong);
+SongRouter.delete('/:songId', authMiddleware,adminMiddleware, SongController.deleteSong);
 export default SongRouter;

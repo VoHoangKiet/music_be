@@ -3,9 +3,6 @@ export interface CreateSongDto {
     genre: string;
     lyric: string;
     releaseDate: Date;
-    duration: string;
-    admin: string;
-    secureUrl: string;
     thumbnail: string;
   }
   

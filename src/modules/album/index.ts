@@ -17,4 +17,7 @@ router.delete('/:id', authMiddleware, adminMiddleware, AlbumController.deleteAlb
 // Add songs to album
 router.post('/:albumId/songs', authMiddleware, adminMiddleware, AlbumController.addSongToAlbum);
 
+// Search album by artist
+router.get('/artist/:artistId', AlbumController.searchAlbumByArtist);
+
 export default router;
