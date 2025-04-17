@@ -30,10 +30,6 @@ class SongController {
         new Uint8Array(request.file.buffer),
         request.file.mimetype
       );
-      console.log(metadata.common.title);
-      console.log(metadata.common.artist);
-      console.log(metadata.common.album);
-      console.log(metadata.common.genre);
       const durationSec = metadata.format.duration || 0;
 
       const formatDuration = (seconds: number): string => {
