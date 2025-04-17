@@ -4,6 +4,7 @@ import ErrorCode from '@/common/constants/errorCode';
 import UnauthorizedExeption from '@/common/exception/UnauthorizedExeption';
 import Jwt from '@/utils/Jwt';
 import hashing from '@/utils/hashing';
+import { IUpdateUserDTO } from './type';
 
 class AuthService {
   async findUserById(_id: string) {
@@ -72,6 +73,21 @@ class AuthService {
     }
     
     return user;
+  }
+
+  async updateUserInfo(userId: string, updateData: IUpdateUserDTO) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.NOT_FOUND,
+        errorMessage: 'User not found',
+      });
+    }
+
+    if (updateData.username) user.username = updateData.username;
+    if (updateData.phone) user.phone = updateData.phone;
+
+    return await user.save();
   }
 }
 
