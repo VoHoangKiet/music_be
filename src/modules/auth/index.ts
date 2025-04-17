@@ -9,5 +9,6 @@ AuthRouter.post('/login', loginMiddleware, AuthController.login);
 AuthRouter.post('/register', registerMiddleware, AuthController.register);
 AuthRouter.get('/my-info', authMiddleware, AuthController.getMyInfo);
 AuthRouter.put('/my-info', authMiddleware, AuthController.updateUserInfo);
+AuthRouter.put('/change-password', authMiddleware, AuthController.changePassword);
 
 export default AuthRouter;

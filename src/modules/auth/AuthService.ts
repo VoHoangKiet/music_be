@@ -23,11 +23,12 @@ class AuthService {
         errorMessage: 'Not found user with this email',
       });
     }
-
+    
     const isCorrectPassword = await hashing.comparePassword(
       password,
       user.password
     );
+
     if (!isCorrectPassword)
       throw new UnauthorizedExeption({
         errorCode: ErrorCode.INCORRECT,
@@ -87,6 +88,31 @@ class AuthService {
     if (updateData.username) user.username = updateData.username;
     if (updateData.phone) user.phone = updateData.phone;
 
+    return await user.save();
+  }
+
+  async changePassword(userId: string, oldPassword: string, newPassword: string) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.NOT_FOUND,
+        errorMessage: 'User not found',
+      });
+    }
+    
+    const isCorrectPassword = await hashing.comparePassword(
+      oldPassword,
+      user.password
+    );
+
+    if (!isCorrectPassword) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.INCORRECT,
+        errorMessage: 'Old password is incorrect',
+      });
+    }
+
+    user.password = await hashing.hashPassword(newPassword);
     return await user.save();
   }
 }

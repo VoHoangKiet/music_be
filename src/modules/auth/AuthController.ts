@@ -73,6 +73,15 @@ class AuthController {
       .status(HttpStatusCode.OK)
       .json({ httpStatusCode: HttpStatusCode.OK, data: updatedUser });
   }
+
+  async changePassword(req: RequestCustom, res: ResponseCustom) {
+    const userId = req.userInfo.uid;
+    const { oldPassword, newPassword } = req.body;
+    await AuthService.changePassword(userId, oldPassword, newPassword);
+    res
+      .status(HttpStatusCode.OK)
+      .json({ httpStatusCode: HttpStatusCode.OK, data: 'Password changed successfully' });
+  }
 }
 
 export default new AuthController();
