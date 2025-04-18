@@ -100,9 +100,18 @@ class SongController {
   async countPlaySong(request: RequestCustom, response: ResponseCustom) {
     const { songId } = request.params;
     const song = await SongService.countPlaySong(songId);
+    await SongService.addToHistory(request.userInfo.uid, songId);
     return response.status(HttpStatusCode.OK).json({
       httpStatusCode: HttpStatusCode.OK,
       data: song,
+    });
+  }
+  async getHistory(request: RequestCustom, response: ResponseCustom) {
+    const history = await SongService.getHistory(request.userInfo.uid);
+
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: history || [],
     });
   }
 }

@@ -7,6 +7,7 @@ import MusicalArtist from '@/databases/entities/Artist';
 import GenreService from '../genre/GenreService';
 import { getSpotifyToken } from '@/utils/getSpotifyToken';
 import axios from 'axios';
+import History from '@/databases/entities/History';
 
 interface SpotifyTrack {
   name: string;
@@ -152,6 +153,20 @@ class SongService {
     song.playCount++;
     await song.save();
     return song;
+  }
+  async searchSong(query: string) {
+    const songs = await Song.find({ title: { $regex: query, $options: 'i' } });
+    return songs;
+  }
+  async addToHistory(userId: string, songId: string) {
+    const history = await History.create({ user: userId, song: songId });
+    await history.save();
+  }
+  async getHistory(userId: string) {
+    const history = await History.find({ user: userId })
+      .populate('song')
+      .sort({ createdAt: -1 });
+    return history;
   }
 }
 
