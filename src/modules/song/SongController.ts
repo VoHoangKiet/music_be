@@ -1,13 +1,11 @@
 import BadRequestException from '@/common/exception/BadRequestException';
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import SongService from './SongService';
 import { RequestCustom, ResponseCustom } from '@/utils/expressCustom';
 import { HttpStatusCode } from '@/common/constants';
-import { uploadToCloudinary } from '@/utils/upload';
-import { parseBuffer } from 'music-metadata';
 import Genre from '@/databases/entities/Genre';
-import { searchTracks } from '@/utils/searchTrack';
+import { search1Track, searchTracks } from '@/utils/searchTrack';
 import mongoose from 'mongoose';
 
 class SongController {
@@ -75,7 +73,7 @@ class SongController {
     });
   }
   async importSpotifyTracks(request: RequestCustom, response: ResponseCustom) {
-    const { query } = request.query;
+    const { query } = request.body;
     const tracks = await searchTracks(query as string);
 
     const importTracks = await SongService.importSpotifyTracks(
@@ -85,6 +83,26 @@ class SongController {
     return response.status(HttpStatusCode.OK).json({
       httpStatusCode: HttpStatusCode.OK,
       data: importTracks,
+    });
+  }async import1SpotifyTrack(request: RequestCustom, response: ResponseCustom) {
+    const { query } = request.body;
+    const tracks = await search1Track(query as string);
+    
+    const importTracks = await SongService.importSpotifyTracks(
+      tracks,
+      new mongoose.Types.ObjectId(request.userInfo.uid)
+    );
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: importTracks,
+    });
+  }
+  async countPlaySong(request: RequestCustom, response: ResponseCustom) {
+    const { songId } = request.params;
+    const song = await SongService.countPlaySong(songId);
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: song,
     });
   }
 }

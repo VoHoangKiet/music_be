@@ -28,9 +28,7 @@ interface SpotifyTrack {
 }
 
 class SongService {
-
   async updateSong(songId: string, data: CreateSongDto): Promise<ISong> {
-    
     const song = await Song.findByIdAndUpdate(songId, data, { new: true });
     if (!song) {
       throw new Error('Song not found');
@@ -77,7 +75,7 @@ class SongService {
 
   async importSpotifyTracks(
     tracks: SpotifyTrack[],
-    adminId: mongoose.Types.ObjectId,
+    adminId: mongoose.Types.ObjectId
   ) {
     for (const track of tracks) {
       const mainArtist = track.artists[0];
@@ -120,28 +118,40 @@ class SongService {
       }
 
       // 4. Tạo song
-      const duration = `${Math.floor(track.duration_ms / 60000)}:${String(
-        Math.floor((track.duration_ms % 60000) / 1000)
-      ).padStart(2, '0')}`;
+      let songDoc = await Song.findOne({ secureUrl: track.id });
+      if (!songDoc) {
+        const duration = `${Math.floor(track.duration_ms / 60000)}:${String(
+          Math.floor((track.duration_ms % 60000) / 1000)
+        ).padStart(2, '0')}`;
 
-      const songDoc = await Song.create({
-        title: track.name,
-        genre,
-        lyric: '123',
-        playCount: 0,
-        duration,
-        releaseDate: new Date(track.album.release_date),
-        secureUrl: track.id,
-        thumbnail: track.album.images?.[0]?.url || '',
-        admin: adminId,
-      });
+        const songDoc = await Song.create({
+          title: track.name,
+          genre,
+          lyric: '123',
+          playCount: 0,
+          duration,
+          releaseDate: new Date(track.album.release_date),
+          secureUrl: track.id,
+          thumbnail: track.album.images?.[0]?.url || '',
+          admin: adminId,
+        });
 
-      if (!albumDoc.songs.includes(songDoc._id as mongoose.Types.ObjectId)) {
-        albumDoc.songs.push(songDoc._id as mongoose.Types.ObjectId);
-        await albumDoc.save();
+        if (!albumDoc.songs.includes(songDoc._id as mongoose.Types.ObjectId)) {
+          albumDoc.songs.push(songDoc._id as mongoose.Types.ObjectId);
+          await albumDoc.save();
+        }
       }
     }
     return { message: 'Import completed.' };
+  }
+  async countPlaySong(songId: string) {
+    const song = await Song.findById(songId);
+    if (!song) {
+      throw new Error('Song not found');
+    }
+    song.playCount++;
+    await song.save();
+    return song;
   }
 }
 

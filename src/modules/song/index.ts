@@ -6,9 +6,11 @@ import { adminMiddleware } from '@/middlewares/admin.middleware';
 const SongRouter = Router();
 SongRouter.get('/', SongController.getAllSongs);
 SongRouter.get('/spotify', SongController.searchTrack);
-SongRouter.get('/import',authMiddleware, SongController.importSpotifyTracks);
-
+SongRouter.post('/import',authMiddleware, SongController.importSpotifyTracks);
+SongRouter.post('/import/track',authMiddleware, SongController.import1SpotifyTrack);
+SongRouter.get('/play/:songId', SongController.countPlaySong);
 SongRouter.post('/favorite/:songId', authMiddleware, SongController.toggleFavoriteSong);
 SongRouter.put('/:songId', authMiddleware,adminMiddleware, SongController.updateSong);
 SongRouter.delete('/:songId', authMiddleware,adminMiddleware, SongController.deleteSong);
+
 export default SongRouter;

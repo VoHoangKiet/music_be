@@ -80,7 +80,26 @@ class AuthController {
     await AuthService.changePassword(userId, oldPassword, newPassword);
     res
       .status(HttpStatusCode.OK)
-      .json({ httpStatusCode: HttpStatusCode.OK, data: 'Password changed successfully' });
+      .json({
+        httpStatusCode: HttpStatusCode.OK,
+        data: 'Password changed successfully',
+      });
+  }
+  async getUsers(req: RequestCustom, res: ResponseCustom) {
+    const users = await AuthService.getUsers();
+    res
+      .status(HttpStatusCode.OK)
+      .json({ httpStatusCode: HttpStatusCode.OK, data: users });
+  }
+  async deleteUser(req: RequestCustom, res: ResponseCustom) {
+    const userId = req.params.userId;
+    await AuthService.deleteUser(userId);
+    res
+      .status(HttpStatusCode.OK)
+      .json({
+        httpStatusCode: HttpStatusCode.OK,
+        data: 'User deleted successfully',
+      });
   }
 }
 

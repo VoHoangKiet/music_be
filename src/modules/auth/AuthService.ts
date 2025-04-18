@@ -5,6 +5,7 @@ import UnauthorizedExeption from '@/common/exception/UnauthorizedExeption';
 import Jwt from '@/utils/Jwt';
 import hashing from '@/utils/hashing';
 import { IUpdateUserDTO } from './type';
+import Playlist from '@/databases/entities/Playlist';
 
 class AuthService {
   async findUserById(_id: string) {
@@ -114,6 +115,20 @@ class AuthService {
 
     user.password = await hashing.hashPassword(newPassword);
     return await user.save();
+  }
+  async getUsers() {
+    return await User.find();
+  }
+  async deleteUser(userId: string) {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new BadRequestException({
+        errorCode: ErrorCode.NOT_FOUND,
+        errorMessage: 'User not found',
+      });
+    }
+    await Playlist.deleteMany({ user: user._id });
+    return await User.findByIdAndDelete(userId);
   }
 }
 
