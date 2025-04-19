@@ -114,6 +114,14 @@ class SongController {
       data: history || [],
     });
   }
+  async recommendByAlbumHistory(request: RequestCustom, response: ResponseCustom) {
+    const { uid } = request.userInfo;
+    await SongService.recommendByAlbumHistory(uid);
+    const recommendations = await SongService.getRecommendation(uid);
+    return response.status(HttpStatusCode.OK).json({
+      httpStatusCode: HttpStatusCode.OK,
+      data: recommendations,
+    });
+  }
 }
-
 export default new SongController();

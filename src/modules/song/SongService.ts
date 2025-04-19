@@ -8,6 +8,9 @@ import GenreService from '../genre/GenreService';
 import { getSpotifyToken } from '@/utils/getSpotifyToken';
 import axios from 'axios';
 import History from '@/databases/entities/History';
+import Recommendation, {
+  IRecommendation,
+} from '@/databases/entities/Recommendation';
 
 interface SpotifyTrack {
   name: string;
@@ -167,6 +170,63 @@ class SongService {
       .populate('song')
       .sort({ createdAt: -1 });
     return history;
+  }
+  async recommendByAlbumHistory(userId: string): Promise<IRecommendation[]> {
+    const histories = await History.find({ user: userId }).populate('song');
+    const recommendationList: IRecommendation[] = [];
+
+    const idCount = histories.reduce<Record<string, number>>((acc, item) => {
+      const id = item.song._id.toString();
+      acc[id] = (acc[id] || 0) + 1;
+      return acc;
+    }, {});
+
+    const seen = new Set<string>();
+    const resultMoreThan5: typeof histories = [];
+
+    for (const item of histories) {
+      const songId = item.song._id.toString();
+      if (idCount[songId] >= 5 && !seen.has(songId)) {
+        resultMoreThan5.push(item);
+        seen.add(songId);
+      }
+    }
+    console.log(resultMoreThan5);
+    for (const item of resultMoreThan5) {
+      const album = await Album.findOne({ songs: item.song._id });
+      if (album) {
+        const filteredSongs = album.songs.filter(
+          (song) => song._id.toString() !== item.song._id.toString()
+        );
+
+        const existing = await Recommendation.findOne({
+          user: userId,
+          // Kiểm tra xem recommendation đã có tất cả bài hát chưa
+          songs: {
+            $all: filteredSongs.map((s) => s._id),
+          },
+        });
+
+        if (!existing && filteredSongs.length > 0) {
+          const recommendation = await Recommendation.create({
+            user: userId,
+            songs: filteredSongs,
+          });
+          recommendationList.push(recommendation);
+        }
+      }
+    }
+
+    return recommendationList;
+  }
+  async getRecommendation(userId: string) {
+    const recommendation = await Recommendation.find({ user: userId }).populate({
+      path: 'songs',
+      populate: {
+        path: 'genre'
+      }
+    });
+    return recommendation;
   }
 }
 

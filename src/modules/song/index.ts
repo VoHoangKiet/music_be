@@ -13,4 +13,5 @@ SongRouter.post('/favorite/:songId', authMiddleware, SongController.toggleFavori
 SongRouter.put('/:songId', authMiddleware,adminMiddleware, SongController.updateSong);
 SongRouter.delete('/:songId', authMiddleware,adminMiddleware, SongController.deleteSong);
 SongRouter.get('/history', authMiddleware, SongController.getHistory);
+SongRouter.get('/recommend', authMiddleware, SongController.recommendByAlbumHistory);
 export default SongRouter;
